@@ -133,15 +133,34 @@ static void prepareIngredients ()
         exit (EXIT_FAILURE);
     }
 
-    /* TODO: insert your code here */
+    /* Start Code */
+    //Set state to preparing
+    sh->fSt.st.agentStat=(unsigned int)PREPARING;
+    //Generate two random ingredients
+    int i1=random(sh->nIngredients);
+    int i2;
+    do{
+        i2=random(sh->nIngredients);
+    }while(r1==r2)
+    sh->fSt.ingredients[i1]+=1;
+    sh->fSt.ingredients[i2]+=1;
+    saveState(nFic,&sh->fSt);
+    /* End Code */
 
     if (semUp (semgid, sh->mutex) == -1) {                                                        /* leave critical region */
         perror ("error on the up operation for semaphore access (AG)");
         exit (EXIT_FAILURE);
     }
 
-    /* TODO: insert your code here */
-
+    /* Start Code */
+    //Wake up all Watchers
+    for(int i=0;i<3;i++){
+        if (semUp (semgid, sh->ingredient[i]) == -1) {                                                      
+            perror ("error on the up operation (in Agent) to free Watcher");
+            exit (EXIT_FAILURE);
+        }
+    }
+    /* End Code */
 }
 
 /**
@@ -157,14 +176,24 @@ static void waitForCigarette ()
         exit (EXIT_FAILURE);
     }
 
-    /* TODO: insert your code here */
+    /* Start Code */
+    //Set state to waiting
+    sh->fSt.st.agentStat=(unsigned int)WAITING_CIG;
+    saveState(nFic,&sh->fSt);
+    /* End Code */
 
     if (semUp (semgid, sh->mutex) == -1) {                                                        /* leave critical region */
         perror ("error on the up operation for semaphore access (AG)");
         exit (EXIT_FAILURE);
     }
 
-    /* TODO: insert your code here */
+    /* Start Code */
+    //Wait for smoker to finish rolling
+    if (semDown (semgid, sh->waitCigarette) == -1) {                                                      
+        perror ("error on the up operation for semaphore access (AG)");
+        exit (EXIT_FAILURE);
+    }
+    /* End Code */
 }
 
 /**
@@ -179,13 +208,26 @@ static void closeFactory ()
         exit (EXIT_FAILURE);
     }
 
-    /* TODO: insert your code here */
+    /* Start Code */
+    //Set state to closing
+    sh->fSt.st.agentStat=(unsigned int)CLOSING_A;
+    sh->fSt.closing=true;
+    saveState(nFic,&sh->fSt);
+    /* End Code */
 
     if (semUp (semgid, sh->mutex) == -1) {                                                        /* leave critical region */
         perror ("error on the up operation for semaphore access (AG)");
         exit (EXIT_FAILURE);
     }
 
-    /* TODO: insert your code here */
+    /* Start Code */
+    //Wake up all Watchers
+    for(int i=0;i<3;i++){
+        if (semUp (semgid, sh->ingredient[i]) == -1) {                                                      
+            perror ("error on the up operation (in Agent) to free Watcher");
+            exit (EXIT_FAILURE);
+        }
+    }
+    /* End Code */
 }
 
