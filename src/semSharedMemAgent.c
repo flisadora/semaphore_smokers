@@ -147,6 +147,7 @@ static void prepareIngredients ()
     saveState(nFic,&sh->fSt);
     /* End Code */
 
+
     if (semUp (semgid, sh->mutex) == -1) {                                                        /* leave critical region */
         perror ("error on the up operation for semaphore access (AG)");
         exit (EXIT_FAILURE);
