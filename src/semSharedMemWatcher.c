@@ -139,21 +139,39 @@ static bool waitForIngredient(int id)
         exit (EXIT_FAILURE);
     }
 
-    /* TODO: insert your code here */
+    /* Start Code */
+    //Set state to waiting
+    sh->fSt.st.watcherStat[id]=(unsigned int)WAITING_ING;
+    saveState(nFic,&sh->fSt);
+    /* End Code */
 
     if (semUp (semgid, sh->mutex) == -1) {                                                         /* exit critical region */
         perror ("error on the down operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }
 
-    /* TODO: insert your code here */
+    /* Start Code */
+    //Wait to be released by Agent
+    if (semDown (semgid, sh->ingredient[id]) == -1)  {                                                     /* enter critical region */
+        perror ("error on the up operation for semaphore access (WT)");
+        exit (EXIT_FAILURE);
+    }
+    /* End Code */
 
     if (semDown (semgid, sh->mutex) == -1)  {                                                     /* enter critical region */
         perror ("error on the up operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }
 
-    /* TODO: insert your code here */
+    /* Start Code */
+    //Check if the two ingredients are available
+    ret=sh->fSt.st.closing;
+    if(ret){
+        sh->fSt.st.watcherStat[id]=(unsigned int)CLOSING_W;
+        //TODO Notify smoker if factory is closing
+        saveState(nFic,&sh->fSt);
+    }
+    /* End Code */
 
     if (semUp (semgid, sh->mutex) == -1) {                                                         /* exit critical region */
         perror ("error on the down operation for semaphore access (WT)");
@@ -184,7 +202,17 @@ static int updateReservations (int id)
         exit (EXIT_FAILURE);
     }
 
-    /* TODO: insert your code here */
+    /* Start Code */
+    //Set state to updating
+    sh->fSt.st.watcherStat[id]=(unsigned int)UPDATING;
+    saveState(nFic,&sh->fSt);
+    //Check if all ingredients are available
+    ret=id;
+    for(int i=0;i<3;i++){
+        if(i!=id && sh->fSt.ingredients[i]<1)
+            ret=-1;
+    }
+    /* End Code */
     
     if (semUp (semgid, sh->mutex) == -1) {                                                         /* exit critical region */
         perror ("error on the down operation for semaphore access (WT)");
@@ -210,13 +238,23 @@ static void informSmoker (int id, int smokerReady)
         exit (EXIT_FAILURE);
     }
 
-    /* TODO: insert your code here */
+    /* Start Code */
+    //Set state to updating
+    sh->fSt.st.watcherStat[id]=(unsigned int)INFORMING;
+    saveState(nFic,&sh->fSt);
+    /* End Code */
 
     if (semUp (semgid, sh->mutex) == -1) {                                                         /* exit critical region */
         perror ("error on the down operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }
 
-    /* TODO: insert your code here */
+    /* Start Code */
+    //If smoker has enough ingredients, wake him up
+    if (semUp (semgid, sh->wait2Ings[smokerReady]) == -1) {                                                         /* exit critical region */
+        perror ("error on the up opperation (in Watcher) to free Smoker");
+        exit (EXIT_FAILURE);
+    }
+    /* End Code */
 }
 
