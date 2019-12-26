@@ -137,11 +137,11 @@ static void prepareIngredients ()
     //Set state to preparing
     sh->fSt.st.agentStat=(unsigned int)PREPARING;
     //Generate two random ingredients
-    int i1=random(sh->nIngredients);
+    int i1=random()%3;
     int i2;
     do{
-        i2=random(sh->nIngredients);
-    }while(r1==r2)
+        i2=random()%3;
+    }while(i1==i2);
     sh->fSt.ingredients[i1]+=1;
     sh->fSt.ingredients[i2]+=1;
     saveState(nFic,&sh->fSt);

@@ -165,7 +165,7 @@ static bool waitForIngredient(int id)
 
     /* Start Code */
     //Check if the two ingredients are available
-    ret=sh->fSt.st.closing;
+    ret=sh->fSt.closing;
     if(ret){
         sh->fSt.st.watcherStat[id]=(unsigned int)CLOSING_W;
         //TODO Notify smoker if factory is closing
