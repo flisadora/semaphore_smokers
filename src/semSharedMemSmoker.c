@@ -183,7 +183,7 @@ static bool waitForIngredients (int id)
     if(sh->fSt.closing){
         ret=false;
         //Set the state to closing 
-        sh->fSt.st.smokerStat[id]=(unsigned int)CLOSING_S; 
+        sh->fSt.st.smokerStat[id]=(unsigned int)CLOSING_S;
     }
     else {
         for(int n=0;n<3;n++){

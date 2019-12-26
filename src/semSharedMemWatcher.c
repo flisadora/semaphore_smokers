@@ -60,7 +60,7 @@ int main (int argc, char *argv[])
 {
     int key;                                            /*access key to shared memory and semaphore set */
     char *tinp;                                                       /* numerical parameters test flag */
-
+    
     /* validation of command line parameters */
     if (argc != 5) { 
         freopen ("error_WT", "a", stderr);
@@ -153,7 +153,7 @@ static bool waitForIngredient(int id)
     /* Start Code */
     //Wait to be released by Agent
     if (semDown (semgid, sh->ingredient[id]) == -1)  {                                                     /* enter critical region */
-        perror ("error on the up operation for semaphore access (WT)");
+        perror ("error on the down operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }
     /* End Code */
@@ -164,11 +164,10 @@ static bool waitForIngredient(int id)
     }
 
     /* Start Code */
-    //Check if the two ingredients are available
-    ret=sh->fSt.closing;
-    if(ret){
+    //Check if agent is closing the factory
+    if(sh->fSt.closing){
+        ret=false;
         sh->fSt.st.watcherStat[id]=(unsigned int)CLOSING_W;
-        //TODO Notify smoker if factory is closing
         saveState(nFic,&sh->fSt);
     }
     /* End Code */
@@ -176,6 +175,14 @@ static bool waitForIngredient(int id)
     if (semUp (semgid, sh->mutex) == -1) {                                                         /* exit critical region */
         perror ("error on the down operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
+    }
+
+    //Notify smoker if factory is closing
+    if(ret==false){
+        if (semUp (semgid, sh->wait2Ings[id]) == -1)  {                                                     /* enter critical region */
+            perror ("error on the up operation (in Watcher) to free Smoker");
+            exit (EXIT_FAILURE);
+        }
     }
 
     return ret;
@@ -205,12 +212,22 @@ static int updateReservations (int id)
     /* Start Code */
     //Set state to updating
     sh->fSt.st.watcherStat[id]=(unsigned int)UPDATING;
+    //Update reserved ingredients
+    sh->fSt.reserved[id]+=1;
     saveState(nFic,&sh->fSt);
-    //Check if all ingredients are available
-    ret=id;
+
+    //Check reserved ingredients so some smoker can start rolling a cigarette
+    int k=0,j=0;
     for(int i=0;i<3;i++){
-        if(i!=id && sh->fSt.ingredients[i]<1)
-            ret=-1;
+        if(sh->fSt.reserved[i]>0) {
+            j+=i;
+            k+=1;
+        }
+    }
+    if(k==2){
+        if(j==1) ret=2;
+        if(j==2) ret=1;
+        if(j==3) ret=0;
     }
     /* End Code */
     
@@ -239,8 +256,12 @@ static void informSmoker (int id, int smokerReady)
     }
 
     /* Start Code */
-    //Set state to updating
+    //Set state to informing
     sh->fSt.st.watcherStat[id]=(unsigned int)INFORMING;
+    //Update reserved ingredients
+    for(int i=0;i<3;i++){
+        if(id!=i) sh->fSt.reserved[i]-=1;
+    }
     saveState(nFic,&sh->fSt);
     /* End Code */
 

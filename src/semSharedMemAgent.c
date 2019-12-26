@@ -137,8 +137,8 @@ static void prepareIngredients ()
     //Set state to preparing
     sh->fSt.st.agentStat=(unsigned int)PREPARING;
     //Generate two random ingredients
-    int i1=random()%3;
-    int i2;
+    int i1, i2;
+    i1=random()%3;
     do{
         i2=random()%3;
     }while(i1==i2);
@@ -154,13 +154,15 @@ static void prepareIngredients ()
     }
 
     /* Start Code */
-    //Wake up all Watchers
-    for(int i=0;i<3;i++){
-        if (semUp (semgid, sh->ingredient[i]) == -1) {                                                      
-            perror ("error on the up operation (in Agent) to free Watcher");
-            exit (EXIT_FAILURE);
-        }
+    //Wake up the Watchers corersponding to the generated ingredients
+    if (semUp (semgid, sh->ingredient[i1]) == -1) {                                                      
+        perror ("error on the up operation (in Agent) to free Watcher");
+        exit (EXIT_FAILURE);
     }
+    if (semUp (semgid, sh->ingredient[i2]) == -1) {                                                      
+        perror ("error on the up operation (in Agent) to free Watcher");
+        exit (EXIT_FAILURE);
+    }    
     /* End Code */
 }
 
@@ -173,7 +175,7 @@ static void prepareIngredients ()
 static void waitForCigarette ()
 {
     if (semDown (semgid, sh->mutex) == -1) {                                                      /* enter critical region */
-        perror ("error on the up operation for semaphore access (AG)");
+        perror ("error on the down operation for semaphore access (AG)");
         exit (EXIT_FAILURE);
     }
 
@@ -191,7 +193,7 @@ static void waitForCigarette ()
     /* Start Code */
     //Wait for smoker to finish rolling
     if (semDown (semgid, sh->waitCigarette) == -1) {                                                      
-        perror ("error on the up operation for semaphore access (AG)");
+        perror ("error on the down operation for semaphore access (AG)");
         exit (EXIT_FAILURE);
     }
     /* End Code */
