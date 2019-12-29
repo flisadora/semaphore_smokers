@@ -179,7 +179,7 @@ static bool waitForIngredient(int id)
 
     //Notify smoker if factory is closing
     if(ret==false){
-        if (semUp (semgid, sh->wait2Ings[id]) == -1)  {                                                     /* enter critical region */
+        if (semUp (semgid, sh->wait2Ings[id]) == -1)  {
             perror ("error on the up operation (in Watcher) to free Smoker");
             exit (EXIT_FAILURE);
         }
@@ -260,7 +260,7 @@ static void informSmoker (int id, int smokerReady)
     sh->fSt.st.watcherStat[id]=(unsigned int)INFORMING;
     //Update reserved ingredients
     for(int i=0;i<3;i++){
-        if(id!=i) sh->fSt.reserved[i]-=1;
+        if(smokerReady!=i) sh->fSt.reserved[i]-=1;
     }
     saveState(nFic,&sh->fSt);
     /* End Code */
