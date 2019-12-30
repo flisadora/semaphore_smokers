@@ -156,11 +156,11 @@ static void prepareIngredients ()
     /* Start Code */
     //Wake up the Watchers corersponding to the generated ingredients
     if (semUp (semgid, sh->ingredient[i1]) == -1) {                                                      
-        perror ("error on the up operation (in Agent) to free Watcher");
+        perror ("error on the up operation for semaphore ingredient[] (AG)");
         exit (EXIT_FAILURE);
     }
     if (semUp (semgid, sh->ingredient[i2]) == -1) {                                                      
-        perror ("error on the up operation (in Agent) to free Watcher");
+        perror ("error on the up operation for semaphore ingredient[] (AG)");
         exit (EXIT_FAILURE);
     }    
     /* End Code */
@@ -193,7 +193,7 @@ static void waitForCigarette ()
     /* Start Code */
     //Wait for smoker to finish rolling
     if (semDown (semgid, sh->waitCigarette) == -1) {                                                      
-        perror ("error on the down operation for semaphore access (AG)");
+        perror ("error on the down operation for semaphore waitCigarette (AG)");
         exit (EXIT_FAILURE);
     }
     /* End Code */
@@ -227,7 +227,7 @@ static void closeFactory ()
     //Wake up all Watchers
     for(int i=0;i<3;i++){
         if (semUp (semgid, sh->ingredient[i]) == -1) {                                                      
-            perror ("error on the up operation (in Agent) to free Watcher");
+            perror ("error on the up operation for semaphore ingredient[] (AG)");
             exit (EXIT_FAILURE);
         }
     }

@@ -169,7 +169,7 @@ static bool waitForIngredients (int id)
 
     /* Start Code */
     if (semDown (semgid, sh->wait2Ings[id]) == -1)  {                                                     
-        perror ("error on the up operation for semaphore access (SM)");
+        perror ("error on the up operation for semaphore wait2Ings (SM)");
         exit (EXIT_FAILURE);
     }
     /* End Code */
@@ -235,7 +235,7 @@ static void rollingCigarette (int id)
     
     /* Start Code */
     if (semUp (semgid, sh->waitCigarette) == -1)  {                                                     
-        perror ("error on the up operation for semaphore access (SM)");
+        perror ("error on the up operation for semaphore waitCigarette (SM)");
         exit (EXIT_FAILURE);
     }
     /* End Code */

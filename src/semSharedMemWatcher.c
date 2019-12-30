@@ -152,8 +152,8 @@ static bool waitForIngredient(int id)
 
     /* Start Code */
     //Wait to be released by Agent
-    if (semDown (semgid, sh->ingredient[id]) == -1)  {                                                     /* enter critical region */
-        perror ("error on the down operation for semaphore access (WT)");
+    if (semDown (semgid, sh->ingredient[id]) == -1)  {                                                  
+        perror ("error on the down operation for semaphore ingredient (WT)");
         exit (EXIT_FAILURE);
     }
     /* End Code */
@@ -272,8 +272,8 @@ static void informSmoker (int id, int smokerReady)
 
     /* Start Code */
     //If smoker has enough ingredients, wake him up
-    if (semUp (semgid, sh->wait2Ings[smokerReady]) == -1) {                                                         /* exit critical region */
-        perror ("error on the up opperation (in Watcher) to free Smoker");
+    if (semUp (semgid, sh->wait2Ings[smokerReady]) == -1) {
+        perror ("error on the up opperation for semaphore wait2Ings (WT)");
         exit (EXIT_FAILURE);
     }
     /* End Code */
